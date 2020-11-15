@@ -10,15 +10,26 @@ Soup = BeautifulSoup(pagetoparse.content, "html.parser")
 
 header = pagetoparse.headers
 titles = Soup.find_all(attrs={'class':'zon-teaser-standard__title'})
-print('title: ', titles)
+author = Soup.find_all(attrs={'class' : 'zon-teaser-standard__byline'})
+comment = Soup.find_all(attrs={'class' : 'zon-teaser-standard__commentcount js-link-commentcount js-update-commentcount'})
+urls = Soup.select('div> div > article> a')
+#print('title: ', titles)
+
+
 
 for title in titles:
-    print(title)
+    print(' Title : \n', title.text)
+
+for auth in author:
+    print('Author :\n', ' '.join(auth.text.split()))
+
+for comm in comment:
+    print(comm.text)
 # urls = Soup.find_all(attrs={'class':'zon-teaser-standard__combined-link'})
-urls = Soup.select('div> div > article> a')
 
 for url in urls:
     print(url.get('href'))
 
-authors = Soup.select('div > section > article > a > div > div > span > span > font > font')
-print('authors: ', authors)
+#authors = Soup.select('div > section > article > a > div > div > span > span > font > font')
+#print('authors: ', authors)
+
