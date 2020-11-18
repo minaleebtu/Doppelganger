@@ -23,6 +23,13 @@ for article in articles:
         eachUrl = requests.get(url)
         eachUrlParse = BeautifulSoup(eachUrl.content, "html.parser")
 
+        if eachUrlParse.select('div > div > span > a > span'):
+            author = eachUrlParse.select('div > div > span > a > span')
+        elif eachUrlParse.find(class_='metadata__source'):
+            author = eachUrlParse.find(class_='metadata__source')
+        else:
+            author = 'none'
+
         def hasNumbers(inputString):
             return any(char.isdigit() for char in inputString)
         def trimComment(commentNum):
@@ -46,7 +53,7 @@ for article in articles:
 
         # date = article.find(class_=['metadata_date' 'meta_date encoded-date'])
 
-        print(title, "/", url, "/", date, "/", commentNum)
+        print(title, "/", url, "/", date, "/", commentNum, "/", author)
 
 
     # except Exception as e:
