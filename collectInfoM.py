@@ -14,7 +14,6 @@ dataTuple = ()
 dataList = []
 
 articles = Soup.find_all(class_=['main main--centerpage','zon-teaser-standard', 'zon-teaser-classic', 'zon-teaser-lead', 'zon-teaser-wide', 'zon-teaser-standard_metadata', 'zon-teaser-lead_commentcount js-link-commentcount js-update-commentcount'])
-comments = Soup.find_all(class_='comment-section')
 
 for article in articles:
     # try:
@@ -23,7 +22,6 @@ for article in articles:
     url = article.find(class_=['zon-teaser-lead__combined-link', 'zon-teaser-standard__combined-link', 'zon-teaser-classic__combined-link', 'zon-teaser-wide__combined-link'])['href']
     # comments = article.select('js-update-commentcount')
     authors = []
-    userIds = []
 
     eachUrl = requests.get(url)
     eachUrlParse = BeautifulSoup(eachUrl.content, "html.parser")
@@ -43,7 +41,7 @@ for article in articles:
         return any(char.isdigit() for char in inputString)
     def trimComment(commentNum):
         index = commentNum.lstrip().find('Kommentar')
-        return commentNum.lstrip()[:index]
+        return commentNum.lstrip()[:index].rstrip()
 
     commentNumParse = eachUrlParse.find(class_=['metadata__commentcount js-scroll', 'comment-section__headline'])
     if commentNumParse:
@@ -62,33 +60,61 @@ for article in articles:
     # date = article.find(class_=['metadata_date' 'meta_date encoded-date'])
 
     dataTuple = title, url, author, commentNum, date
-    print(dataTuple)
+
     if dataTuple[dataTuple.index(commentNum)] != 'none':
         dataList.append(dataTuple)
 
-print(dataList)
-# pageNums = []
-    # if commentNum > 0:
-    #     pageNum = eachUrlParse.select('div > div > span > small')
-    # print(pageNum[0].text)
-    # def getPageNum(pageNum):
-    #     for x in pageNum:
-    #         pageNums.append(x.get_text())
-    #         pageNum = pageNums
-    #     return pageNum
-    #
-    # getPageNum(pageNum)
+    # urlIndex = dataTuple.index(url)
+    # commentNumIndex = dataTuple.index(commentNum)
+    # print("commentNumIndex:",commentNumIndex)
 
-    # userId = eachUrlParse.select('div > div > h4 > a')
-    #
-    # for comment in comments:
-    #     print("asdfasdfadfasdf")
-    #
-    #     print(type(userId))
-    #     # getPageNum()
-    #     for x in userId:
-    #         userIds.append(x.get_text().strip())
-    #         userId = userIds
+    # print(dataTuple)
+for data in dataList:
+
+    # print(data)
+
+    eachUrl = requests.get(data[1])
+    eachUrlParse = BeautifulSoup(eachUrl.content, "html.parser")
+
+    pageNum = eachUrlParse.select('div > div > span > small')
+    # print(pageNum)
+
+    def getPageNum(pageNum):
+        for x in pageNum:
+            index = x.get_text().find('von')
+            return x.get_text()[index+4:]
+
+    pageNumValue = getPageNum(pageNum)
+    # print(pageNumValue)
+
+    if pageNumValue != None:
+        pageNumValueInt = int(pageNumValue)
+        # print(pageNumValueInt)
+        commentUrls = []
+        for x in range(1,pageNumValueInt+1):
+            commentUrls.append(data[1] + "?page=" + str(x) + "#comments")
+
+        # print(commentUrls)
+
+        for commentUrl in commentUrls:
+            print(commentUrl)
+            eachCommentUrl = requests.get(commentUrl)
+            eachCommentUrlParse = BeautifulSoup(eachCommentUrl.content,"html.parser")
+
+            # comments = eachCommentUrlParse.find_all(class_='comment__container')
+            comments = eachCommentUrlParse.find_all("article",{"class":"comment"})
+
+            for comment in comments:
+                # print("comment:",comment)
+                userId = comment.find("a",{"data-ct-label": "user_profile"})
+                # userId = comment.select('div > div > h4 > a')
+                userIds = []
+                for x in userId:
+                    userIds.append(str(x))
+                    userId = userIds
+                print("userIds:",userIds)
+                # contentOfComment = comment.find(class_='comment__body')
+                # print("content:", contentOfComment)
 
     # except Exception as e:
     #     title = ''
