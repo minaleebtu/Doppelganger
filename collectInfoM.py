@@ -3,6 +3,15 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 from csv import writer
 import pandas as pd
+import mysql.connector
+
+# DB connect info
+mydb = mysql.connector.connect(
+    host = "localhost",
+    user = "root",
+    password = "root",
+    database = "doppelganger"
+)
 
 url = "https://www.zeit.de/"
 
@@ -10,11 +19,12 @@ pagetoparse = requests.get(url)
 
 Soup = BeautifulSoup(pagetoparse.content, "html.parser")
 
-dataTuple = ()
-dataList = []
+articleTuple = ()
+articleList = []
 
 articles = Soup.find_all(class_=['main main--centerpage','zon-teaser-standard', 'zon-teaser-classic', 'zon-teaser-lead', 'zon-teaser-wide', 'zon-teaser-standard_metadata', 'zon-teaser-lead_commentcount js-link-commentcount js-update-commentcount'])
 
+# get article info
 for article in articles:
     # try:
     title = article.find(class_=['zon-teaser-lead__title', 'zon-teaser-standard__title', 'zon-teaser-classic__title', 'zon-teaser-wide__title']).get_text()
@@ -31,14 +41,15 @@ for article in articles:
         for authorName in author:
             authors.append(authorName.get_text().strip())
             author = authors
-
     elif eachUrlParse.find(class_='metadata__source'):
         author = 'none'
     else:
         author = 'none'
 
-    def hasNumbers(inputString):
-        return any(char.isdigit() for char in inputString)
+    # check acomment number data has number or not
+    def hasNumbers(commentNum):
+        return any(char.isdigit() for char in commentNum)
+    # trim comment number to exact number
     def trimComment(commentNum):
         index = commentNum.lstrip().find('Kommentar')
         return commentNum.lstrip()[:index].rstrip()
@@ -59,45 +70,53 @@ for article in articles:
         date = 'none'
     # date = article.find(class_=['metadata_date' 'meta_date encoded-date'])
 
-    dataTuple = title, url, author, commentNum, date
+    articleTuple = title, url, author, commentNum, date
 
-    if dataTuple[dataTuple.index(commentNum)] != 'none':
-        dataList.append(dataTuple)
-
-    # urlIndex = dataTuple.index(url)
-    # commentNumIndex = dataTuple.index(commentNum)
-    # print("commentNumIndex:",commentNumIndex)
+    # put data to article List if comment number of article is not null
+    if articleTuple[articleTuple.index(commentNum)] != 'none':
+        articleList.append(articleTuple)
 
     # print(dataTuple)
-for data in dataList:
 
-    # print(data)
+# get comment info by using article data from article List
+commentTuple = ()
+commentList = []
+for articleData in articleList:
 
-    eachUrl = requests.get(data[1])
+    # print(articleData)
+    title = articleData[0]
+    url = articleData[1]
+
+    eachUrl = requests.get(url)
     eachUrlParse = BeautifulSoup(eachUrl.content, "html.parser")
 
     pageNum = eachUrlParse.select('div > div > span > small')
-    # print(pageNum)
-
+    # get number of pages of comments
     def getPageNum(pageNum):
         for x in pageNum:
             index = x.get_text().find('von')
             return x.get_text()[index+4:]
+    def trimDate(commDate):
+        for date in commDate:
+            index = str(date).find('vor')
+            return str(date)[index:].lstrip()
 
     pageNumValue = getPageNum(pageNum)
-    # print(pageNumValue)
-
+    print("pageNum", pageNumValue)
+    # only for those which have page number of comments
     if pageNumValue != None:
         pageNumValueInt = int(pageNumValue)
         # print(pageNumValueInt)
         commentUrls = []
         for x in range(1,pageNumValueInt+1):
-            commentUrls.append(data[1] + "?page=" + str(x) + "#comments")
+            commentUrls.append(articleData[1] + "?page=" + str(x) + "#comments")
 
         # print(commentUrls)
 
+        # parse each comment page per article
         for commentUrl in commentUrls:
             print(commentUrl)
+
             eachCommentUrl = requests.get(commentUrl)
             eachCommentUrlParse = BeautifulSoup(eachCommentUrl.content,"html.parser")
 
@@ -105,16 +124,36 @@ for data in dataList:
             comments = eachCommentUrlParse.find_all("article",{"class":"comment"})
 
             for comment in comments:
+                print("title: ", title)
                 # print("comment:",comment)
-                userId = comment.find("a",{"data-ct-label": "user_profile"})
-                # userId = comment.select('div > div > h4 > a')
-                userIds = []
-                for x in userId:
-                    userIds.append(str(x))
-                    userId = userIds
-                print("userIds:",userIds)
-                # contentOfComment = comment.find(class_='comment__body')
-                # print("content:", contentOfComment)
+                username = comment.find(class_="comment-meta__name")
+                content = comment.find(class_='comment__body').text
+                commDate = comment.find("a",{"data-ct-label": "datum"})
+
+                if username != None:
+                    username = username.get_text().strip()
+                else:
+                    username = 'none'
+
+                print("username:",username)
+                print("content:", content)
+                print("commDate: ", trimDate(commDate))
+
+    else:
+        comments = eachUrlParse.find_all("article", {"class": "comment"})
+        for comment in comments:
+            print("title: ", title)
+            username = comment.find(class_="comment-meta__name")
+            content = comment.find(class_='comment__body').text
+            commDate = comment.find("a", {"data-ct-label": "datum"})
+
+            if username != None:
+                username = username.get_text().strip()
+            else:
+                username = 'none'
+            print("username: ", username)
+            print("content: ", content)
+            print("commDate: ", trimDate(commDate))
 
     # except Exception as e:
     #     title = ''
