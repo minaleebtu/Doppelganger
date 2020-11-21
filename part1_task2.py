@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import part1_task1
+import csv
 from csv import writer
 import mysql.connector
 
@@ -25,16 +26,14 @@ for articleData in part1_task1.articleList:
             return str(date)[index:].replace('\n','')
 
     pageNumValue = getPageNum(pageNum)
-    # print("pageNum", pageNumValue)
+
     # only for those which have page number of comments
     if pageNumValue != None:
         pageNumValueInt = int(pageNumValue)
-        # print(pageNumValueInt)
+
         commentUrls = []
         for x in range(1,pageNumValueInt+1):
             commentUrls.append(articleData[1] + "?page=" + str(x) + "#comments")
-
-        # print(commentUrls)
 
         # parse each comment page per article
         for commentUrl in commentUrls:
@@ -51,7 +50,12 @@ for articleData in part1_task1.articleList:
                 username = comment.find(class_="comment-meta__name")
                 content = comment.find(class_='comment__body').text.replace('\n','')
                 commDate = comment.find("a",{"data-ct-label": "datum"})
-                userUrl = username['href']
+
+
+                if comment.find("a", {"data-ct-label": "user_profile"}):
+                    userUrl = comment.find("a", {"data-ct-label": "user_profile"})['href']
+                else:
+                    userUrl = 'none'
 
 
                 if username != None:
@@ -59,51 +63,12 @@ for articleData in part1_task1.articleList:
                 else:
                     username = 'none'
 
-                if userUrl == None:
-                    userUrl = 'none'
-
                 commentTuple = title, username, content, trimDate(commDate), userUrl
                 print(commentTuple)
-                # print("title: ", title)
-                # print("username:",username)
-                # print("content:", content)
-                # print("commDate: ", trimDate(commDate))
-                if len(commentTuple[commentTuple.index(content)].split()) >= 50:
+
+                if len(content.split()) >= 50:
                     commentList.append(commentTuple)
-                    print("more than 50(",len(commentTuple[commentTuple.index(content)].split()),")")
+
                 else:
-                    print("nopeeeeeeeee")
-
-    else:
-        comments = eachUrlParse.find_all("article", {"class": "comment"})
-        for comment in comments:
-            username = comment.find(class_="comment-meta__name")
-            content = comment.find(class_='comment__body').text.replace('\n','')
-            commDate = comment.find("a", {"data-ct-label": "datum"})
-            userUrl = username['href']
-
-            if username != None:
-                username = username.get_text().strip()
-            else:
-                username = 'none'
-
-            if userUrl == None:
-                userUrl = 'none'
-
-            commentTuple = title, username, content, trimDate(commDate), userUrl
-            # print("title: ", title)
-            # print("username: ", username)
-            # print("content: ", content)
-            # print("commDate: ", trimDate(commDate))
-            print(commentTuple)
-            if len(commentTuple[commentTuple.index(content)].split()) >= 50:
-                commentList.append(commentTuple)
-                print("more than 50(",len(commentTuple[commentTuple.index(content)].split()),")")
-            else:
-                print("nopeeeeeeeee")
-    # print(commentTuple)
-    # contentLen = len(content.split())
-    # print("content: ", content)
-    # print("len: ", len(commentTuple[commentTuple.index(content)].split()))
-
-print(commentList)
+                    continue
+                print(commentTuple)
