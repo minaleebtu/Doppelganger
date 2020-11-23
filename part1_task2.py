@@ -109,7 +109,7 @@ print(commentList)
 
 for articleTitle, username, content, commDate in commentList:
     sql = "INSERT IGNORE INTO comments (articleTitle, username, content, commDate) VALUES (%s, %s, %s, %s)"
-    val = (articleTitle, username, content, trimDate(commDate))
+    val = (articleTitle, username, content, commDate)
     mycursor.execute(sql, val)
 
 mydb.commit()
