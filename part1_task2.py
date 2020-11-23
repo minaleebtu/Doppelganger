@@ -77,10 +77,6 @@ for articleData in articleList:
                     commentTuple = articleTitle, username, content, trimDate(commDate)
                     commentList.append(commentTuple)
                     userUrlList.append(userUrl)
-
-                    sql = "INSERT IGNORE INTO comments (articleTitle, username, content, commDate) VALUES (%s, %s, %s, %s)"
-                    val = (articleTitle, username, content, trimDate(commDate))
-                    mycursor.execute(sql, val)
                 else:
                     continue
 
@@ -106,14 +102,16 @@ for articleData in articleList:
                 commentTuple = articleTitle, username, content, trimDate(commDate)
                 commentList.append(commentTuple)
                 userUrlList.append(userUrl)
-
-                sql = "INSERT IGNORE INTO comments (articleTitle, username, content, commDate) VALUES (%s, %s, %s, %s)"
-                val = (articleTitle, username, content, trimDate(commDate))
-                mycursor.execute(sql, val)
             else:
                 continue
 
 print(commentList)
+
+for articleTitle, username, content, commDate in commentList:
+    sql = "INSERT IGNORE INTO comments (articleTitle, username, content, commDate) VALUES (%s, %s, %s, %s)"
+    val = (articleTitle, username, content, trimDate(commDate))
+    mycursor.execute(sql, val)
+
 mydb.commit()
 
 mycursor.execute("select * from comments")

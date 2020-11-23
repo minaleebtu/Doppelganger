@@ -15,8 +15,6 @@ titles = []
 
 articles = Soup.find_all(class_=['zon-teaser-standard', 'zon-teaser-classic', 'zon-teaser-lead', 'zon-teaser-wide'])
 
-
-
 # get article info
 for article in articles:
     title = article.find(class_=['zon-teaser-lead__title', 'zon-teaser-standard__title', 'zon-teaser-classic__title', 'zon-teaser-wide__title']).get_text()
@@ -64,7 +62,6 @@ for article in articles:
         pubDate = 'none'
     articleTuple = title, articleUrl, author, commentNum, pubDate
 
-
     # put data to article List if comment number of article is not null
     if commentNum != 'none':
         articleList.append(articleTuple)
@@ -91,11 +88,9 @@ for title, articleUrl, author, commentNum, pubDate in articleList:
     val = (title, articleUrl, author, commentNum, pubDate)
     # print("val: ", val)
     mycursor.execute(sql, val)
-print(mycursor.rowcount, "inserted into article table")
 mydb.commit()
 mycursor.execute("select * from articles")
 res = mycursor.fetchall()
-print(mycursor.rowcount, "inserted into article table")
 mydb.close()
 
 with open('articles.csv', 'w', encoding='utf8') as csv_file:
@@ -106,6 +101,3 @@ with open('articles.csv', 'w', encoding='utf8') as csv_file:
     csv_writer.writerows(res)
 
 print(articleList)
-print("title Count: ", len(titleCount))
-print("Data inserted into table 'articles'")
-
