@@ -2,7 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 from part1_task2 import userUrls
 import mysql.connector
-from csv import writer
 
 # DB connect info
 mydb = mysql.connector.connect(
@@ -73,13 +72,6 @@ for userUrl in userUrls:
         break
 
 mydb.commit()
-mycursor.execute("select * from comments")
-res = mycursor.fetchall()
-selectTotalNum = mycursor.rowcount
 mydb.close()
 
-with open('comments_incl_per_user.csv', 'w', encoding='utf8') as csv_file:
-    csv_writer = writer(csv_file)
-    headers = ['Article Title', 'Username', 'Content of Comment', 'Date']
-    csv_writer.writerow(headers)
-    csv_writer.writerows(res)
+print("Finished running task3")

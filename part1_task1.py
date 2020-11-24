@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-from csv import writer
 import mysql.connector
 
 url = "https://www.zeit.de/"
@@ -11,7 +10,6 @@ Soup = BeautifulSoup(pagetoparse.content, "html.parser")
 
 articleTuple = ()
 articleList = []
-titles = []
 
 articles = Soup.find_all(class_=['zon-teaser-standard', 'zon-teaser-classic', 'zon-teaser-lead', 'zon-teaser-wide'])
 
@@ -34,7 +32,7 @@ for article in articles:
     else:
         author = 'none'
 
-    # check acomment number data has number or not
+    # check comment number data has number or not
     def hasNumbers(commentNum):
         return any(char.isdigit() for char in commentNum)
 
@@ -66,11 +64,6 @@ for article in articles:
     if commentNum != 'none':
         articleList.append(articleTuple)
 
-for title in articleList:
-    titles.append(title[0])
-
-titleCount = set(titles)
-
 # DB connect info
 mydb = mysql.connector.connect(
     host = "localhost",
@@ -86,18 +79,9 @@ for title, articleUrl, author, commentNum, pubDate in articleList:
     if author != 'none':
         author = ','.join(author)
     val = (title, articleUrl, author, commentNum, pubDate)
-    # print("val: ", val)
     mycursor.execute(sql, val)
+
 mydb.commit()
-mycursor.execute("select * from articles")
-res = mycursor.fetchall()
 mydb.close()
-
-with open('articles.csv', 'w', encoding='utf8') as csv_file:
-    csv_writer = writer(csv_file)
-    headers = ['Title', 'Title Url', 'Author', 'Comment Number', 'Published Date']
-
-    csv_writer.writerow(headers)
-    csv_writer.writerows(res)
 
 print(articleList)
