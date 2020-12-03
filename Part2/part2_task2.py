@@ -301,3 +301,4 @@ avg_num_word_per_sentence = tot_wordCountPerSentence/sentenceCount
 # print("- Number of grammar mistakes per comment: ", grammarChkPerCommList)
 print("- Uppercase word usage per sentence: ", upperWordPerSenList)
 print("- Uppercase word usage per comment: ", upperWordPerCommList)
+print("plzz remove it!!!")
