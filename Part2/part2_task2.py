@@ -15,6 +15,8 @@ from textblob import TextBlob
 from germansentiment import SentimentModel
 import spacy
 import collections
+from Cleantext import stop_words
+import langdetect
 
 # sys.stdout = open('result.txt', 'w', encoding='utf-8')
 
@@ -50,6 +52,9 @@ typeTokenRatio = []
 
 entropyTuple = ()
 entropyList = []
+
+ease_reading = []
+gunning_fog = []
 
 simpsonList = []
 sichelList = []
@@ -189,11 +194,35 @@ def multiple_whitespace(text):
 def count_punctuation(text):
     return len(list(filter(lambda c: c in string.punctuation, text)))
 
+def lang_detect(text):
+
+    result = pd.DataFrame(text)
+    pd.options.display.width = 0
+    # result["sentiment"] = data["content"].apply(lambda x:TextBlob(x).sentiment.polarity)
+
+    result["lang"] = data["content"].apply(lambda x: langdetect.detect(x) if
+    x.strip() != "" else "")
+    print(result.head())
+
+
+def wordfreq_counter(text):
+    dd = stop_words(text)
+    counter = Counter(dd)
+    freq_words = Counter(counter).most_common(20)
+    print(counter)
+    return freq_words
+
 
 for row in sample:
     strip_row = row.strip()
     split_by_word = strip_row.split()
     tokenList.append(split_by_word)
+    ease_r = textstat.flesch_reading_ease(row)
+    ease_reading.append(ease_r)
+    fog = textstat.gunning_fog(row)
+    gunning_fog.append(fog)
+
+
 
     sentences = sent_tokenize(strip_row)
     sentenceCount += len(sentences)
@@ -431,4 +460,9 @@ print("=========================================================================
 print("task2 h) Additional features", file=h_out)
 print("- Noun Phrase: ", nounPhraseList, file=h_out)
 print("- Named Entity Recognition: ", list(set(NERList)), file=h_out)
+print("- Language Detection :", lang_detect(contentList), file=h_out)
+print("- Top 10 words in the content", wordfreq_counter(contentList), file=h_out)
+print("- Ease reading for the content", list(set(ease_reading)), file=h_out)
+print("- Gunning Fog value for the content", list(set(gunning_fog)), file=h_out)
+
 h_out.close()
