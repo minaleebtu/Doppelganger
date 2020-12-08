@@ -43,6 +43,9 @@ typeTokenRatio = []
 entropyTuple = ()
 entropyList = []
 
+ease_reading = []
+gunning_fog = []
+
 fleschTuple = ()
 fleschList = []
 
@@ -294,6 +297,10 @@ for row in sample:
     strip_row = row.strip()
     split_by_word = strip_row.split()
     tokenList.append(split_by_word)
+    ease_r = textstat.flesch_reading_ease(row)
+    ease_reading.append(ease_r)
+    fog = textstat.gunning_fog(row)
+    gunning_fog.append(fog)
 
     sentences = sent_tokenize(strip_row)
     sentenceCount += len(sentences)
