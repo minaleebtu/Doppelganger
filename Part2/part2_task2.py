@@ -213,7 +213,7 @@ def wordfreq_counter(text):
     return freq_words
 
 
-for row in sample:
+for row in contentList:
     strip_row = row.strip()
     split_by_word = strip_row.split()
     tokenList.append(split_by_word)
