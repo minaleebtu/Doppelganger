@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from Part1.part1_task1 import articleList
+from part1_task1 import articleList
 import mysql.connector
 
 # DB connect info
