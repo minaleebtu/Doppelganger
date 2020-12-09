@@ -10,21 +10,12 @@ def do_work():
     # create the condition since argument/parameter is needed to get the result
     if len(option) == 0:
         print("You have not passed any commands in!\n\nPlease specify the parameter or use -h or -help to see the instruction.")
-        # print("Usage: part2_task3.py [OPTIONS]\n")
-        # print("Options:\n\t-h\t\t print overview information about this toolbox")
-        # print("\t-s [KEYWORD]\t\tstart toolbox in different operation modes")
-        # print("\n(valid keyword:\n\tarticle -> collect article information from zeit.de")
-        # print("\tcomment -> collect comment according to articles from zeit.de")
-        # print("\tusercomm -> collect comments from 50 users who wrote at least 100 different comments")
-        # print("\tpreprocess -> pre-processing of the collected user comments")
-        # print("\tfeature -> extract a set of features from the collected user comments)")
 
     # If the condition is met, it will process based on the argument/parameter
     else:
         for opt in option:
             #Print the instruction how to make use of the program
             if opt == '-h' or opt == '-help':
-
                 print("This toolbox is for scraping article and comment information from the zeit.de which is a news webpage. \nMoreover, data from the webpage is able for preprocessing and generating features.")
                 print("\n\nUsage: part2_task3.py [OPTIONS]\n")
                 print("Options:\n\t-h\t\t\tprint overview information about this toolbox")
