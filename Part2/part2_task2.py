@@ -110,7 +110,17 @@ totNegPerSen = 0
 
 
 def getComment():
-    numOfComment = int(input("Please enter the number of comments you want to extract: "))
+    while True:
+        try:
+            userInput = input("Please enter the number of comments you want to extract: ")
+            numOfComment = int(userInput)
+
+        except ValueError:
+            print("Please enter number(int type)!!")
+            continue
+        else:
+            break
+
     sample = []
     for i in range(numOfComment):
         sample.append(contentList[i])
@@ -383,7 +393,7 @@ avg_sentence_per_comm = sentenceCount/len(contentList)
 avg_num_word_per_sentence = tot_wordCountPerSentence/sentenceCount
 
 a_out = open('task2_a.txt', 'w', encoding='utf-8')
-print("===============================================================================")
+# print("===============================================================================")
 print("task2 a) Word-level", file=a_out)
 print("- Average number of characters per word: ", avg_num_char, file=a_out)
 print("- Average number of uppercase letters per word: ", avg_num_upper, file=a_out)
@@ -394,7 +404,7 @@ print("- Frequency of large words per comment: ", largeWordCountList, file=a_out
 a_out.close()
 
 b_out = open('task2_b.txt', 'w', encoding='utf-8')
-print("===============================================================================")
+# print("===============================================================================")
 print("task2 b) Vocabulary-richness", file=b_out)
 print("- Number of syllables per word: ", syllablesList, file=b_out)
 print("- Type-token Ratio: ", typeTokenRatio, file=b_out)
@@ -404,7 +414,7 @@ print("- Sichel's S measure: ", sichelList, file=b_out)
 b_out.close()
 
 c_out = open('task2_c.txt', 'w', encoding='utf-8')
-print("===============================================================================")
+# print("===============================================================================")
 print("task2 c) Sentence-level", file=c_out)
 print("- Number of short sentences: ", shortSenCount, file=c_out)
 print("- Number of long sentences: ", longSenCount, file=c_out)
@@ -415,14 +425,14 @@ print("- Average number of words per sentence: ", avg_num_word_per_sentence, fil
 c_out.close()
 
 d_out = open('task2_d.txt', 'w', encoding='utf-8')
-print("===============================================================================")
+# print("===============================================================================")
 print("task2 d) Leetspeak-based", file=d_out)
 print("- Original sample text: ", textsam, file=d_out)
 print("- Sample text after applying fraction of leetspeak: ", leetspeak(textsam), file=d_out)
 d_out.close()
 
 e_out = open('task2_e.txt', 'w', encoding='utf-8')
-print("===============================================================================")
+# print("===============================================================================")
 print("task2 e)", file=e_out)
 print("- Frequency of used punctuation per sentence: ", puncCountPerSenList, file=e_out)
 print("- Frequency of used punctuation per comment: ", puncCountPerCommList, file=e_out)
@@ -431,7 +441,7 @@ print("- Frequency of repeated occurrence of whitespace per comment", multiSpace
 e_out.close()
 
 f_out = open('task2_f.txt', 'w', encoding='utf-8')
-print("===============================================================================")
+# print("===============================================================================")
 print("task2 f) Content-based", file=f_out)
 print("- Average positivity per word: ", totPosPerWord/wordCount, file=f_out)
 print("- Average positivity per sentence: ", totPosPerSen/sentenceCount, file=f_out)
@@ -440,7 +450,7 @@ print("- Average sensitivity per sentence: ", totNegPerSen/sentenceCount, file=f
 f_out.close()
 
 g_out = open('task2_g.txt', 'w', encoding='utf-8')
-print("===============================================================================")
+# print("===============================================================================")
 print("task2 g) Idiosyncratic", file=g_out)
 print("- Number of grammar mistakes per sentence: ", grammarChkPerSenList, file=g_out)
 print("- Number of grammar mistakes per comment: ", grammarChkPerCommList, file=g_out)
@@ -449,7 +459,7 @@ print("- Uppercase word usage per comment: ", upperWordPerCommList, file=g_out)
 g_out.close()
 
 h_out = open('task2_h.txt', 'w', encoding='utf-8')
-print("===============================================================================")
+# print("===============================================================================")
 print("task2 h) Additional features", file=h_out)
 print("- Noun Phrase: ", nounPhraseList, file=h_out)
 print("- Named Entity Recognition: ", list(set(NERList)), file=h_out)
