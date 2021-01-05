@@ -35,18 +35,16 @@ def do_work():
                         if key == 'article':
                             subprocess.call(['python', '../Part1/part1_task1.py'])
                         elif key == 'comment':
-                            subprocess.call(['python', 'Part1/part1_task2.py'])
+                            subprocess.call(['python', '../Part1/part1_task2.py'])
                         elif key == 'usercomm':
-                            subprocess.call(['python', 'Part1/part1_task3.py'])
+                            subprocess.call(['python', '../Part1/part1_task3.py'])
                         elif key == 'preprocess':
-                            subprocess.call(['python', 'Part2/part2_task1.py'])
+                            subprocess.call(['python', '../Part2/part2_task1.py'])
                         elif key == 'feature':
-                            subprocess.call(['python', 'Part2/part2_task2.py'])
+                            subprocess.call(['python', '../Part2/part2_task2.py'])
                         elif key == 'pca':
-                            subprocess.call('ls', shell=True, cwd='Part3/')
-                            # subprocess.call(['python', './Part3/part3_task1.py'])
+                            subprocess.call(['python', 'part3_task1.py'])
                         elif key == 'doppel':
-
                             subprocess.call(['python', 'part3_task2.py'])
                         #ask the user to put the valid keyword
                         else:

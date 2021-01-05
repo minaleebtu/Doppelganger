@@ -13,7 +13,7 @@ from textblob_de import TextBlobDE as TextBlob
 from germansentiment import SentimentModel
 import spacy
 import collections
-from Part2.Cleantext import stop_words
+from Cleantext import stop_words
 import langdetect
 
 textstat.set_lang("de")
