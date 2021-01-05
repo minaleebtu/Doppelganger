@@ -1,46 +1,51 @@
 import pandas as pd
-from sklearn import preprocessing
-from sklearn.decomposition import PCA
 import numpy as np
-from numpy import cov
-from Part2.part2_task2 import numberOfWordsPerComm,  largeWordCountList, simpsonList, sichelList, sentenceLenPerCommList, puncCountPerCommList, multiSpacePerCommList, grammarChkPerCommList, upperWordPerCommList, ease_reading, gunning_fog
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+
+# Load the new sorted dataset
+new = pd.read_csv('Joined_1.csv')
 
 
-pd.options.display.float_format = '{:.2f}'.format
-df = pd.DataFrame([x for x in zip(numberOfWordsPerComm,  largeWordCountList, simpsonList, sichelList, sentenceLenPerCommList, puncCountPerCommList, multiSpacePerCommList, grammarChkPerCommList, upperWordPerCommList, ease_reading, gunning_fog)], columns=['total words per comment',  'frequency of large words per comment', 'Simpson', 'Sichel', 'Average sentence length per comment', 'Frequency of used punctuation per comment', 'Frequency of repeated occurrence of whitespace per comment', 'Number of grammar mistakes per comment', 'Uppercase word usage per comment', 'Ease reading for the content', 'Gunning Fog value for the content'])
+# drop the unnecessary columns
+datdrop = new.drop(['Unnamed: 0','Unnamed: 0.1' ,'Unnamed: 0.1.1','username', 'content', 'Label'], axis = 1)
+print("\n",datdrop)
+
+# Just wanna see the value of each authors
+new_value = new['username'].value_counts()
+print("\n",new_value)
+
+# Convert the dataset into an array
 np.set_printoptions(formatter={'float': '{: 0.2f}'.format})
-featureMatrix = df.to_numpy().T
-covMatrix = cov(featureMatrix, bias=True)
-covDF = pd.DataFrame(data=covMatrix, index=['numberOfWordsPerComm',  'largeWordCountList', 'simpsonList', 'sichelList', 'sentenceLenPerCommList', 'puncCountPerCommList', 'multiSpacePerCommList', 'grammarChkPerCommList', 'upperWordPerCommList', 'ease_reading', 'gunning_fog'])
-print("===============================================================================")
-print("a) Calculate the covariance matrix of a feature matrix")
-print("Covarinace matrix of featureMatrix:\n", covMatrix)
-# print("cov pandas:\n ", covDF)
+dat_array = datdrop.to_numpy()
+print("\n", dat_array)
 
-print("===============================================================================")
-print("b) Calculate eigenvectors and eigenvalues of the covariance matrix")
-eigenvalue = np.linalg.eigvals(covMatrix)
-eigenvalue, eigenvector = np.linalg.eig(covMatrix)
-print("eigenvector:\n", eigenvector)
-print("eigenvalue:\n", eigenvalue)
+# Standardizing the data
+scaler = StandardScaler()
+dat_standardized = scaler.fit_transform(dat_array)
+print(dat_standardized)
 
-print("===============================================================================")
-print("c) PCA")
-scaled_data = preprocessing.scale(featureMatrix)
-pca = PCA()
-pca_fit = pca.fit(scaled_data)
-pca_data = pca.transform(scaled_data)
-print("pca_data:\n", pca_data)
-pcaDF = pd.DataFrame(data=pca_data, index=['total words per comment',  'frequency of large words per comment', 'Simpson', 'Sichel', 'Average sentence length per comment', 'Frequency of used punctuation per comment', 'Frequency of repeated occurrence of whitespace per comment', 'Number of grammar mistakes per comment', 'Uppercase word usage per comment', 'Ease reading for the content', 'Gunning Fog value for the content'])
-# print("pca pandas:\n", pcaDF)
-pcaList = pcaDF.reset_index().values.tolist()
-# print("list of pcaDF: ", pcaList)
-selected = []
-for i in pcaList:
-    cnt = 0
-    for j in i[1:]:
-        if cnt >= 1:
-            selected.append(i[0])
-        if j > 0.99:
-            cnt += 1
-print("Selected features: ", list(set(selected)))
+# Calculate the Covariance Matrix
+COVMAT = np.cov(dat_standardized.T)
+print("\n", COVMAT)
+
+# Calculate the Eigenvalues and Eigenvectors
+eigvals, eigvecs = np.linalg.eig(COVMAT)
+
+print("Eigenvalues : \n", eigvals)
+print("Eigenvectors : \n", eigvecs)
+
+
+# Calculate the PCA and extract the features
+pd.options.display.width = 0
+pca = PCA(n_components = 0.999)
+DATA_PCA = pca.fit_transform(dat_array)
+print("PCA Data : \n", DATA_PCA)
+
+# See the difference shape/dimension before and after extraction
+print("Shape Transformation : \n", "\nBefore Extraction :", dat_array.shape[1], "\nAfter Extraction Using PCA : ", DATA_PCA.shape[1])
+
+datfr = pd.DataFrame(DATA_PCA)
+
+print(datfr)
+
