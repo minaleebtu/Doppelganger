@@ -142,7 +142,9 @@ def getProbsGSThread(nthread, clf, data, label, allAuthors, modeldir, saveModel)
 def getProbsTrainTest(clf, data, label, train, test, modeldir, saveModel):
     anAuthor = int(label[test[0]])
 
-    print("current author ", anAuthor)
+    # print("current author ", anAuthor)
+
+    # print(list(allAuthorNames)[0])
 
     train_data = data[train, :]
     train_data_label = label[train]
@@ -228,12 +230,15 @@ def getCombinedProbs(outfile, selection, a, b, prob_per_author):
         return squared
     # return total_prob, add_prob, sq_prob
 
-
+allAuthorNames = authors_to_num.keys()
+print('Valid User List : ',*list(allAuthorNames), sep = "\n")
 prob_per_author = getProbsGSThread(4, clf, DATA_PCA, y, allAuthors, 'models/', '100-w10-classifier.joblib.pkl')
 
-allAuthorNames = authors_to_num.keys()
+# allAuthorNames = authors_to_num.keys()
+# print(next(iter((allAuthorNames))))
 
 
+# print('Valid Username list : ' , allAuthorNames[0])
 while True:
     userA = input("Please enter the name of author A: ")
     if getLabelOfUsers(userA) == None:
