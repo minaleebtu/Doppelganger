@@ -10,7 +10,7 @@ from joblib import Parallel, delayed
 from sklearn import svm
 from part3_task1 import DATA_PCA, new
 
-userList = new["username"].values.tolist()
+authorList = new["username"].values.tolist()
 datfr = pd.DataFrame(DATA_PCA)
 
 # Separating the dependant and independent variable
@@ -33,23 +33,23 @@ allAuthors = encode_to_num.keys()
 clf = svm.SVC(kernel='linear')
 
 
-def getLabelOfUsers(username):
-    users = []
-    usersdict = {}
-    for index in range(len(userList)):
-        users.append(userList[index])
+def getLabelOfAuthor(authorname):
+    authors = []
+    authorsrsdict = {}
+    for index in range(len(authorList)):
+        authors.append(authorList[index])
 
-    newUsers = list(set(users))
+    newUsers = list(set(authors))
 
     le = LabelEncoder()
-    encoded_users = le.fit_transform(newUsers)
-    original_users = le.inverse_transform(encoded_users)
+    encoded_authors = le.fit_transform(newUsers)
+    original_authors = le.inverse_transform(encoded_authors)
 
-    for eu, ou in zip(encoded_users, original_users):
-        usersdict.update({ou:eu})
+    for ea, oa in zip(encoded_authors, original_authors):
+        authorsrsdict.update({oa: ea})
     result = None
-    for user, label in usersdict.items():
-        if username == user:
+    for author, label in authorsrsdict.items():
+        if authorname == author:
             result = label
     return result
 
@@ -114,56 +114,70 @@ def getProbsTrainTest(clf, data, label, train, test, modeldir, saveModel):
 
 
 # Create a function for calculating the combination of all probabilities
-def getCombinedProbs(outfile, selection, a, b, prob_per_author):
-    labelA = getLabelOfUsers(a)
-    labelB = getLabelOfUsers(b)
+def getCombinedProbs(selection, a, b, prob_per_author):
+    # get label values of author a and b
+    labelA = getLabelOfAuthor(a)
+    labelB = getLabelOfAuthor(b)
 
+    # combine probabilities (multiplication, average, squared average)
     multiple = prob_per_author[labelA][labelB] * prob_per_author[labelB][labelA]
     average = (prob_per_author[labelA][labelB] + prob_per_author[labelB][labelA]) / 2
     squared = (prob_per_author[labelA][labelB] * prob_per_author[labelA][labelB] + prob_per_author[labelB][labelA] * prob_per_author[labelB][labelA]) / 2
 
+    # pint out probabilities(Pr(author A -> author B), Pr(author B -> author A))
     print("Pr(A->B): ", str(prob_per_author[labelA][labelB]), "& Pr(B->A): ", str(prob_per_author[labelB][labelA]))
 
+    # return combined probability according to the way of combining probabilities
     if selection == 'multiple':
         return multiple
     elif selection == 'average':
         return average
     elif selection == 'squared':
         return squared
-    # return total_prob, add_prob, sq_prob
 
 allAuthorNames = authors_to_num.keys()
-print('Valid User List : ',*list(allAuthorNames), sep = "\n")
+print('Valid Author List : ',*list(allAuthorNames), sep = "\n")
 prob_per_author = getProbsThread(4, clf, DATA_PCA, y, allAuthors, 'models/', '100-w10-classifier.joblib.pkl')
 
+# get author A as an input to compare with author B
 while True:
-    userA = input("Please enter the name of author A: ")
-    if getLabelOfUsers(userA) == None:
+    authorA = input("Please enter the name of author A from 'Valid Author List': ")
+
+    # if the input author is not in author list, make user input the author name again
+    if getLabelOfAuthor(authorA) == None:
         print("Please enter the valid name of author")
     else:
         break
 
+# get author B as an input to compare with author A
 while True:
-    userB = input("Please enter the name of author B: ")
+    authorB = input("Please enter the name of author B from 'Valid Author List': ")
 
-    if getLabelOfUsers(userB) == None:
+    # if the input author is not in author list, make user input the author name again
+    if getLabelOfAuthor(authorB) == None:
         print("Please enter the valid name of author")
     else:
         break
 
 
+# get the selection of the way of combining the probabilities as an input
 while True:
     selection = input("Please enter way to combine probabilities('multiple' for multiplication, 'average' for average 'squared' for squared average): ")
 
+    # if input selection is not one of multiplication, average, squared average, make user input the selection again
     if selection.lower() not in ('multiple', 'average', 'squared'):
         print("Not an appropriate choice. Enter valid value ('multiple', 'average', 'squared')")
     else:
         break
 
-combined = getCombinedProbs("results.csv", selection, userA, userB, prob_per_author)
+# get the value of combined probability
+combinedProb = getCombinedProbs(selection, authorA, authorB, prob_per_author)
 
+# get threshold as an input
 while True:
     threshold = input("Please enter the threshold (range: 0-1): ")
+
+    # check the input parameter is number or not. If parameter is not number, make user input threshold again
     try:
         threshold = int(threshold)
         break
@@ -174,9 +188,10 @@ while True:
         except ValueError:
             print("This is not a number. Please enter a valid number")
 
-print("Combined probability is ", combined)
+print("Combined probability is ", combinedProb)
 
-if combined > threshold:
-    print(">> They are Doppelgangers")
+# if combined probability is greater than the threshold, two authors A and B should be considered the same (Doppelgänger)
+if combinedProb > threshold:
+    print(">> They are Doppelgängers")
 else:
-    print(">> They are not Doppelgangers")
+    print(">> They are not Doppelgängers")
