@@ -36,16 +36,14 @@ def getLabel(numOfUser, numOfComm):
 def getUserName(numOfUser):
     result = pd.DataFrame()
     for userIn in range(0, numOfUser):
-        result = result.append(new[new.Label == userIn][0], ignore_index = True)
+        result = result.append(new[new.Label == userIn], ignore_index = True)
     newResult = list(set(result['username'].to_list()))
-    print("getUserName: ", newResult)
     return newResult
 
 
 def selectData(numOfUser, numOfComm):
     result = pd.DataFrame()
     for userIn in range(0, numOfUser):
-        # print("new[new.Label == ", userIn, "]\n", new[new.Label == userIn].drop(['Unnamed: 0', 'comment'], axis = 1)[0:numOfComm], "\n", len(new[new.Label == userIn].drop(['Unnamed: 0', 'comment'], axis = 1)[0:numOfComm]))
         result = result.append(new[new.Label == userIn].drop(['Unnamed: 0', 'comment'], axis=1)[0:numOfComm], ignore_index = True)
     result = result.drop(['username', 'Label'], axis=1)
 
@@ -61,6 +59,11 @@ X_60_10 = getPca(selectData(60, 10))
 X_60_30 = getPca(selectData(60, 30))
 
 y_20_20 = getLabel(20, 20)
+y_40_20 = getLabel(40, 20)
+y_60_20 = getLabel(60, 20)
+y_60_10 = getLabel(60, 10)
+y_60_30 = getLabel(60, 30)
+
 
 # Create the probability of each author
 # prob_per_author_20_20 = [[0]*(len(y_20_20)) for i in range(len(y_20_20))]
@@ -70,10 +73,21 @@ y_20_20 = getLabel(20, 20)
 # print(authors_to_num)
 
 encode_to_num_20_20 = pd.Series(getLabel(20,20), getLabel(20,20)).to_dict()
-print('Total authors: ', len(encode_to_num_20_20.keys()))
-print('Authors are: ', encode_to_num_20_20.values())
+encode_to_num_40_20 = pd.Series(getLabel(40,20), getLabel(40,20)).to_dict()
+encode_to_num_60_20 = pd.Series(getLabel(60,20), getLabel(60,20)).to_dict()
+encode_to_num_60_10 = pd.Series(getLabel(60,10), getLabel(60,10)).to_dict()
+encode_to_num_60_30 = pd.Series(getLabel(60,30), getLabel(60,30)).to_dict()
+
+# print('Total authors: ', len(encode_to_num_20_20.keys()))
+# print('Authors are: ', encode_to_num_20_20.values())
 
 allAuthors_20_20 = encode_to_num_20_20.keys()
+allAuthors_40_20 = encode_to_num_40_20.keys()
+allAuthors_60_20 = encode_to_num_60_20.keys()
+allAuthors_60_10 = encode_to_num_60_10.keys()
+allAuthors_60_30 = encode_to_num_60_30.keys()
+
+
 # Define the classifiers
 clf = svm.SVC(kernel='linear', probability=True)
 
@@ -144,7 +158,7 @@ def getCombinedProbs(outfile, prob_per_author, allAuthors, encode_to_num, author
 
     with open(outfile, "w+", encoding='utf-8') as out:
         out.write(
-            'Author 1, Author 2, P(A->B), P(B->A),Multiplication, Averaged, Squared, Encode 1, Encode 2\n')
+            'Author 1,Author 2,P(A->B),P(B->A),Multiplication,Averaged,Squared,Encode 1,Encode 2\n')
         for i in range(len(allAuthors)):
             a = int(allAuthors[i])
             for j in range(i + 1, len(allAuthors)):
@@ -160,7 +174,7 @@ def getCombinedProbs(outfile, prob_per_author, allAuthors, encode_to_num, author
                 out.write(str(authors_name[a]) + " ," + str(authors_name[b]) + " ," +
                           str(prob_per_author[a][b]) + "," + str(prob_per_author[b][a]) + "," +
                           str(total) + "," + str(addition) + "," + str(sqsum) + "," +
-                          str(encode_to_num[a]) + " ," + str(encode_to_num[b]),
+                          str(encode_to_num[a]) + " ," + str(encode_to_num[b]) +
                           "\n")
 
                 if total in total_prob.keys():
@@ -191,16 +205,30 @@ def doppelganger(outfile):
     data['Threshold'] = data.apply(lambda row: (row.Multiplication + row.Averaged + row.Squared) / 3, axis=1)
 
     data['Doppelgangers'] = data['Threshold'].apply(lambda x: 0 if x <= round(data['Threshold'].mean(), 3) else 1)
-    # countDoppel = data['Doppelgangers'].value_counts()
-    # print("countDoppel:\n", countDoppel)
 
     return data.to_csv(outfile, index=False)
 
 # allAuthorNames = authors_to_num.keys()
 # print('Valid Author List : ',*list(allAuthorNames), sep = "\n")
 prob_per_author_20_20 = getProbsThread(3, clf, X_20_20, y_20_20, allAuthors_20_20, 'models/20_20/', '100-w10-classifier.joblib.pkl')
-total_prob, add_prob, sq_prob = getCombinedProbs("result_20_20.csv", prob_per_author_20_20, list(allAuthors_20_20), encode_to_num_20_20, getUserName(20))
+getCombinedProbs("result_20_20.csv", prob_per_author_20_20, list(allAuthors_20_20), encode_to_num_20_20, getUserName(20))
+doppelganger("result_20_20.csv")
 
+prob_per_author_40_20 = getProbsThread(3, clf, X_40_20, y_40_20, allAuthors_40_20, 'models/40_20/', '100-w10-classifier.joblib.pkl')
+getCombinedProbs("result_40_20.csv", prob_per_author_40_20, list(allAuthors_40_20), encode_to_num_40_20, getUserName(40))
+doppelganger("result_40_20.csv")
+
+prob_per_author_60_20 = getProbsThread(3, clf, X_60_20, y_60_20, allAuthors_60_20, 'models/60_20/', '100-w10-classifier.joblib.pkl')
+getCombinedProbs("result_60_20.csv", prob_per_author_60_20, list(allAuthors_60_20), encode_to_num_60_20, getUserName(60))
+doppelganger("result_60_20.csv")
+
+prob_per_author_60_10 = getProbsThread(3, clf, X_60_10, y_60_10, allAuthors_60_10, 'models/60_10/', '100-w10-classifier.joblib.pkl')
+getCombinedProbs("result_60_10.csv", prob_per_author_60_10, list(allAuthors_60_10), encode_to_num_60_10, getUserName(60))
+doppelganger("result_60_10.csv")
+
+prob_per_author_60_30 = getProbsThread(3, clf, X_60_30, y_60_30, allAuthors_60_30, 'models/60_30/', '100-w10-classifier.joblib.pkl')
+getCombinedProbs("result_60_30.csv", prob_per_author_60_30, list(allAuthors_60_30), encode_to_num_60_30, getUserName(60))
+doppelganger("result_60_30.csv")
 
 
 # X = getPca(selectData(40, 30))
