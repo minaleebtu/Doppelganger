@@ -8,6 +8,8 @@ from sklearn.model_selection import LeaveOneGroupOut
 import joblib
 from joblib import Parallel, delayed
 from sklearn import svm
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 
 new = pd.read_csv('Joinedv1.csv')
 datdrop = new.drop(['Unnamed: 0', 'username', 'comment', 'Label'], axis = 1)
@@ -208,6 +210,19 @@ def doppelganger(outfile):
 
     return data.to_csv(outfile, index=False)
 
+def crossval(df):
+    data = pd.read_csv(df)
+    X = data.drop(['Doppelgangers', 'Author 1', 'Author 2'], axis = 1)
+    y = data['Doppelgangers']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+    clf = svm.SVC()
+    clf.fit(X_train, y_train)
+    clf.score(X_test, y_test)
+    predict = cross_val_score(clf, X, y, cv=3)
+    return predict.tolist()
+
+
+
 # allAuthorNames = authors_to_num.keys()
 # print('Valid Author List : ',*list(allAuthorNames), sep = "\n")
 prob_per_author_20_20 = getProbsThread(3, clf, X_20_20, y_20_20, allAuthors_20_20, 'models/20_20/', '100-w10-classifier.joblib.pkl')
@@ -230,10 +245,67 @@ prob_per_author_60_30 = getProbsThread(3, clf, X_60_30, y_60_30, allAuthors_60_3
 getCombinedProbs("result_60_30.csv", prob_per_author_60_30, list(allAuthors_60_30), encode_to_num_60_30, getUserName(60))
 doppelganger("result_60_30.csv")
 
+print("Cross Validation score 20_20 : ",crossval("result_20_20.csv"))
+print("Cross Validation score 40_20 : ",crossval("result_40_20.csv"))
+print("Cross Validation score 60_20 : ",crossval("result_60_20.csv"))
+print("Cross Validation score 60_10 : ",crossval("result_60_10.csv"))
+print("Cross Validation score 60_20 : ",crossval("result_60_20.csv"))
+print("Cross Validation score 60_30 : ",crossval("result_60_30.csv"))
 
-# X = getPca(selectData(40, 30))
-# y = getLabel(40, 30)
+
+# X = np.arange(3)
+# plt.bar(X + 0.00, crossval("result_20_20.csv"), color = 'b', width = 0.25)
+# plt.bar(X + 0.25, crossval("result_40_20.csv"), color = 'g', width = 0.25)
+# plt.bar(X + 0.50, crossval("result_60_20.csv"), color = 'r', width = 0.25)
 #
-# clf = svm.SVC(kernel='linear')
-# cross = cross_val_score(clf, X, y, cv=3)
-# print("cross_val_score: ", cross)
+# plt.show()
+
+# fig = plt.figure()
+# ax = fig.add_subplot(1, 1, 1)
+# ax.plot([1, 2, 3], crossval("result_20_20.csv"))
+# ax.plot([1, 2, 3], crossval("result_40_20.csv"))
+# ax.plot([1, 2, 3], crossval("result_60_20.csv"))
+# ax.set_xlabel('Time (s)')
+# ax.set_ylabel('Scale (Bananas)')
+#
+# plt.show()
+
+x = [1,2,3]
+
+plt.plot(x, crossval("result_20_20.csv"), label='1st stage')
+plt.plot(x, crossval("result_40_20.csv"), label='2nd stage')
+plt.plot(x, crossval("result_60_20.csv"), label='3rd stage')
+
+plt.xlabel('Number of Experiments')
+plt.ylabel('Value of Cross Validation')
+
+plt.title("Cross Validation A")
+plt.legend()
+
+plt.show()
+
+
+plt.plot(x, crossval("result_60_10.csv"), label='1st stage')
+plt.plot(x, crossval("result_60_20.csv"), label='2nd stage')
+plt.plot(x, crossval("result_60_30.csv"), label='3rd stage')
+
+plt.xlabel('Number of Experiments')
+plt.ylabel('Value of Cross Validation')
+
+plt.title("Cross Validation B")
+
+
+
+plt.legend()
+
+plt.show()
+
+# plt.subplot(111)
+# plt.plot(crossval("result_20_20.csv"), label="1st Experiment")
+# plt.plot(crossval("result_40_20.csv"), label="2nd Experiment")
+# plt.plot(crossval("result_60_20.csv"), label="3rd Experiment")
+# # Place a legend above this subplot, expanding itself to
+# # fully use the given bounding box.
+# plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
+#            ncol=2, mode="expand", borderaxespad=0.)
+# plt.show()
