@@ -50,7 +50,7 @@ plt.show()
 tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
 print(tn, fp, fn, tp)
 
-target_names = ['Doppelganger', 'Non-Doppelganger']
+target_names = ['Non-Doppelganger', 'Doppelganger']
 print("====================================================================================")
 print(classification_report(y_test, y_pred, target_names=target_names))
 

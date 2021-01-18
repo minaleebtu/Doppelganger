@@ -203,7 +203,7 @@ def doppelganger(outfile):
     pd.options.display.width = 0
     pd.options.display.float_format = "{:,.3f}".format
 
-    data = data.drop(['Encode 1', 'Encode 2'], axis=1)
+    # data = data.drop(['Encode 1', 'Encode 2'], axis=1)
     data['Threshold'] = data.apply(lambda row: (row.Multiplication + row.Averaged + row.Squared) / 3, axis=1)
 
     data['Doppelgangers'] = data['Threshold'].apply(lambda x: 0 if x <= round(data['Threshold'].mean(), 3) else 1)
