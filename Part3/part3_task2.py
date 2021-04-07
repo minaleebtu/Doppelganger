@@ -19,15 +19,15 @@ prob_per_author = [[0]*(len(y)) for i in range(len(y))]
 
 # Convert the dataframe into a dictionary to get the values and keys
 authors_to_num = pd.Series(new["Label"].values,index=new.username).to_dict()
-print(authors_to_num)
+# print(authors_to_num)
 
 encode_to_num = pd.Series(new["Label"].values, new["Label"].values).to_dict()
-print('Total authors: ', len(encode_to_num.keys()))
-print('Authors are: ', encode_to_num.values())
+# print('Total authors: ', len(encode_to_num.keys()))
+# print('Authors are: ', encode_to_num.values())
 
 allAuthors = encode_to_num.keys()
 # Define the classifiers
-clf = svm.SVC(kernel='linear')
+clf = svm.SVC(kernel='linear', probability=True)
 
 
 def getLabelOfAuthor(authorname):
@@ -64,7 +64,6 @@ def getProbsThread(nthread, clf, data, label, allAuthors, modeldir, saveModel):
         crossval.split(data, label, groups=label))
 
     for train, test in crossval.split(data, label, groups=label):
-
         anAuthor = int(label[test[0]])
         train_data_label = label[train]
         trainAuthors = list(set(train_data_label))
@@ -132,9 +131,61 @@ def getCombinedProbs(selection, a, b, prob_per_author):
     elif selection == 'squared':
         return squared
 
+
+# def getCombinedProbs(outfile, prob_per_author, allAuthors, encode_to_num, authors_name):
+#     total_prob = {}
+#     add_prob = {}
+#     sq_prob = {}
+#
+#     with open(outfile, "w+", encoding='utf-8') as out:
+#         out.write(
+#             'Author 1, Author 2, P(A->B), P(B->A),Multiplication P(1->2)*P(2->1), Averaged (P(1->2)+P(2->1))/2, Squared (P(1->2)^2+P(2->1)^2)/2, Encode 1, Encode 2\n')
+#         for i in range(len(allAuthors)):
+#
+#             a = int(allAuthors[i])
+#             # if len(authors_to_numbers[a])==0:
+#             #    continue
+#             for j in range(i + 1, len(allAuthors)):
+#                 b = allAuthors[j]
+#
+#                 result = 0
+#
+#                 total = prob_per_author[a][b] * prob_per_author[b][a]
+#                 addition = (prob_per_author[a][b] + prob_per_author[b][a]) / 2
+#                 sqsum = (prob_per_author[a][b] * prob_per_author[a][b] + prob_per_author[b][a] * prob_per_author[b][
+#                     a]) / 2
+#
+#                 out.write(str(authors_name[a]) + " ," + str(authors_name[b]) + " ," +
+#                           str(prob_per_author[a][b]) + "," + str(prob_per_author[b][a]) + "," +
+#                           str(total) + "," + str(addition) + "," + str(sqsum) + "," +
+#                           str(encode_to_num[a]) + " ," + str(encode_to_num[b]) +
+#                           "\n")
+#
+#                 # out.write(str(encode_to_num[a])+" ,"+str(encode_to_num[b])+" ,"+str(prob_per_author[a][b])+","+str(prob_per_author[b][a])+","+str(total)+","+str(addition)+","+str(sqsum)+" ,"+str(authors_name[a])+" ,"+str(authors_name[b])+"\n")
+#
+#                 if total in total_prob.keys():
+#                     total_prob[total] += result
+#                 else:
+#                     total_prob[total] = result
+#
+#                 if addition in add_prob.keys():
+#                     add_prob[addition] += result
+#                 else:
+#                     add_prob[addition] = result
+#                 if sqsum in sq_prob.keys():
+#                     sq_prob[sqsum] += result
+#                 else:
+#                     sq_prob[sqsum] = result
+#
+#     out.close()
+#
+#     return total_prob, add_prob, sq_prob
+
+
 allAuthorNames = authors_to_num.keys()
-print('Valid Author List : ',*list(allAuthorNames), sep = "\n")
+print('Valid Author List : ', *list(allAuthorNames), sep = "\n")
 prob_per_author = getProbsThread(4, clf, DATA_PCA, y, allAuthors, 'models/', '100-w10-classifier.joblib.pkl')
+# total_prob, add_prob, sq_prob = getCombinedProbs("newResult.csv", prob_per_author, list(allAuthors), encode_to_num, list(allAuthorNames))
 
 # get author A as an input to compare with author B
 while True:
@@ -159,7 +210,7 @@ while True:
 
 # get the selection of the way of combining the probabilities as an input
 while True:
-    selection = input("Please enter way to combine probabilities('multiple' for multiplication, 'average' for average 'squared' for squared average): ")
+    selection = input("Please enter way to combine probabilities\n('multiple' for multiplication, 'average' for average 'squared' for squared average): ")
 
     # if input selection is not one of multiplication, average, squared average, make user input the selection again
     if selection.lower() not in ('multiple', 'average', 'squared'):
@@ -169,7 +220,8 @@ while True:
 
 # get the value of combined probability
 combinedProb = getCombinedProbs(selection, authorA, authorB, prob_per_author)
-
+# total_prob, add_prob, sq_prob = getCombinedProbs("results.csv", prob_per_author, list(allAuthors), encode_to_num, list(allAuthorNames))
+# combinedProb = getCombinedProbs("results.csv", prob_per_author, list(allAuthors), encode_to_num, list(allAuthorNames))
 # get threshold as an input
 while True:
     threshold = input("Please enter the threshold (range: 0-1): ")
@@ -189,6 +241,6 @@ print("Combined probability is ", combinedProb)
 
 # if combined probability is greater than the threshold, two authors A and B should be considered the same (Doppelgänger)
 if combinedProb > threshold:
-    print(">> They are Doppelgängers")
+    print(">> ", authorA, " and ", authorB, " are Doppelgängers")
 else:
-    print(">> They are not Doppelgängers")
+    print(">> ", authorA, " and ", authorB, " are not Doppelgängers")

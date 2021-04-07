@@ -8,7 +8,7 @@ new = pd.read_csv('Joined_1.csv')
 
 
 # drop the unnecessary columns
-datdrop = new.drop(['Unnamed: 0','Unnamed: 0.1' ,'Unnamed: 0.1.1','username', 'content', 'Label'], axis = 1)
+datdrop = new.drop(['Unnamed: 0', 'Unnamed: 0.1', 'Unnamed: 0.1.1', 'username', 'content', 'Label'], axis = 1)
 print("\n",datdrop)
 
 # Just wanna see the value of each authors

@@ -12,35 +12,41 @@ mydb = mysql.connector.connect(
 )
 mycursor = mydb.cursor()
 
+
+def trimComment(commentNum):
+    index = commentNum.lstrip().find('Kommentar')
+    return commentNum.lstrip()[:index].rstrip()
+
+
+def getCommentNum(commentNumParse):
+    for commentNum in commentNumParse:
+        if '.' in commentNum.text:
+            return trimComment(commentNum.text.replace('.', ''))
+        else:
+            return trimComment(commentNum.text)
+
+
+def getPageNum(pageNum):
+    for page in pageNum:
+        if '.' in page.text:
+            return page.text.replace('.', '')
+        else:
+            return page.text
+
+
+def getarticleTitle(articleTitle):
+    index = articleTitle.lstrip().find(':')
+    return articleTitle.lstrip()[index + 1:].lstrip()
+
+
 count = 0
+
 for userUrl in userUrls:
     eachUrl = requests.get(userUrl)
     eachUrlParse = BeautifulSoup(eachUrl.content, "html.parser")
 
     username = eachUrlParse.find("h2",{"class":"user-header__title"}).get_text()
     commentNumParse = eachUrlParse.find(class_="user-profile__info").select('span:last-child')
-
-    def trimComment(commentNum):
-        index = commentNum.lstrip().find('Kommentar')
-        return commentNum.lstrip()[:index].rstrip()
-
-    def getCommentNum(commentNumParse):
-        for commentNum in commentNumParse:
-            if '.' in commentNum.text:
-                return trimComment(commentNum.text.replace('.', ''))
-            else:
-                return trimComment(commentNum.text)
-
-    def getPageNum(pageNum):
-        for page in pageNum:
-            if '.' in page.text:
-                return page.text.replace('.', '')
-            else:
-                return page.text
-
-    def getarticleTitle(articleTitle):
-        index = articleTitle.lstrip().find(':')
-        return articleTitle.lstrip()[index + 1:].lstrip()
 
     commentNum = int(getCommentNum(commentNumParse))
 

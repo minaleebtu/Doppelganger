@@ -67,26 +67,26 @@ def selectData(numOfUser, numOfComm):
 
 # Separating the dependant and independent variable per experiment
 X_20_20 = getPca(selectData(20, 20))
-X_40_20 = getPca(selectData(40, 20))
-X_60_20 = getPca(selectData(60, 20))
-X_60_10 = getPca(selectData(60, 10))
-X_60_30 = getPca(selectData(60, 30))
+# X_40_20 = getPca(selectData(40, 20))
+# X_60_20 = getPca(selectData(60, 20))
+# X_60_10 = getPca(selectData(60, 10))
+# X_60_30 = getPca(selectData(60, 30))
 
 y_20_20 = getLabel(20, 20)
-y_40_20 = getLabel(40, 20)
-y_60_20 = getLabel(60, 20)
-y_60_10 = getLabel(60, 10)
-y_60_30 = getLabel(60, 30)
+# y_40_20 = getLabel(40, 20)
+# y_60_20 = getLabel(60, 20)
+# y_60_10 = getLabel(60, 10)
+# y_60_30 = getLabel(60, 30)
 
 # Label of users (dictionary type)
 encode_to_num_20 = pd.Series(getLabel(20, 1), getLabel(20, 1)).to_dict()
-encode_to_num_40 = pd.Series(getLabel(40, 1), getLabel(40, 1)).to_dict()
-encode_to_num_60 = pd.Series(getLabel(60, 1), getLabel(60, 1)).to_dict()
+# encode_to_num_40 = pd.Series(getLabel(40, 1), getLabel(40, 1)).to_dict()
+# encode_to_num_60 = pd.Series(getLabel(60, 1), getLabel(60, 1)).to_dict()
 
 # Label of users
 allAuthors_20 = encode_to_num_20.keys()
-allAuthors_40 = encode_to_num_40.keys()
-allAuthors_60 = encode_to_num_60.keys()
+# allAuthors_40 = encode_to_num_40.keys()
+# allAuthors_60 = encode_to_num_60.keys()
 
 # Define the classifiers
 clf = svm.SVC(kernel='linear', probability=True)
@@ -155,6 +155,8 @@ def getCombinedProbs(outfile, prob_per_author, allAuthors, encode_to_num, author
     total_prob = {}
     add_prob = {}
     sq_prob = {}
+    print("prob_per_author: ", prob_per_author, len(prob_per_author))
+    print("allAuthors: ", allAuthors, type(allAuthors))
 
     with open(outfile, "w+", encoding='utf-8') as out:
         out.write(
@@ -201,7 +203,7 @@ def doppelganger(outfile):
     data = pd.read_csv(outfile)
     pd.options.display.width = 0
 
-    # Getting mean of combined probabilities (multipliction, average, squared average) per row as threshold
+    # Getting mean of combined probabilities (multiplication, average, squared average) per row as threshold
     data['Threshold'] = data.apply(lambda row: (row.Multiplication + row.Averaged + row.Squared) / 3, axis=1)
     # Getting mean of threshold from all rows and compare with each threshold
     # if threshold is greater than mean of threshold from all rows, we can say two authors are doppelgangers (label: 1)
@@ -230,61 +232,61 @@ def crossval(df):
 
 # Creating the probability of each author
 prob_per_author_20_20 = getProbsThread(3, clf, X_20_20, y_20_20, allAuthors_20, 'models/20_20/', '100-w10-classifier.joblib.pkl')
-prob_per_author_40_20 = getProbsThread(3, clf, X_40_20, y_40_20, allAuthors_40, 'models/40_20/', '100-w10-classifier.joblib.pkl')
-prob_per_author_60_20 = getProbsThread(3, clf, X_60_20, y_60_20, allAuthors_60, 'models/60_20/', '100-w10-classifier.joblib.pkl')
-prob_per_author_60_10 = getProbsThread(3, clf, X_60_10, y_60_10, allAuthors_60, 'models/60_10/', '100-w10-classifier.joblib.pkl')
-prob_per_author_60_30 = getProbsThread(3, clf, X_60_30, y_60_30, allAuthors_60, 'models/60_30/', '100-w10-classifier.joblib.pkl')
+# prob_per_author_40_20 = getProbsThread(3, clf, X_40_20, y_40_20, allAuthors_40, 'models/40_20/', '100-w10-classifier.joblib.pkl')
+# prob_per_author_60_20 = getProbsThread(3, clf, X_60_20, y_60_20, allAuthors_60, 'models/60_20/', '100-w10-classifier.joblib.pkl')
+# prob_per_author_60_10 = getProbsThread(3, clf, X_60_10, y_60_10, allAuthors_60, 'models/60_10/', '100-w10-classifier.joblib.pkl')
+# prob_per_author_60_30 = getProbsThread(3, clf, X_60_30, y_60_30, allAuthors_60, 'models/60_30/', '100-w10-classifier.joblib.pkl')
 
 # Result of getting probability values
 getCombinedProbs("result_20_20.csv", prob_per_author_20_20, list(allAuthors_20), encode_to_num_20, getUserName(20))
-getCombinedProbs("result_40_20.csv", prob_per_author_40_20, list(allAuthors_40), encode_to_num_40, getUserName(40))
-getCombinedProbs("result_60_20.csv", prob_per_author_60_20, list(allAuthors_60), encode_to_num_60, getUserName(60))
-getCombinedProbs("result_60_10.csv", prob_per_author_60_10, list(allAuthors_60), encode_to_num_60, getUserName(60))
-getCombinedProbs("result_60_30.csv", prob_per_author_60_30, list(allAuthors_60), encode_to_num_60, getUserName(60))
+# getCombinedProbs("result_40_20.csv", prob_per_author_40_20, list(allAuthors_40), encode_to_num_40, getUserName(40))
+# getCombinedProbs("result_60_20.csv", prob_per_author_60_20, list(allAuthors_60), encode_to_num_60, getUserName(60))
+# getCombinedProbs("result_60_10.csv", prob_per_author_60_10, list(allAuthors_60), encode_to_num_60, getUserName(60))
+# getCombinedProbs("result_60_30.csv", prob_per_author_60_30, list(allAuthors_60), encode_to_num_60, getUserName(60))
 
 # Appending doppelganger detection values
 doppelganger("result_20_20.csv")
-doppelganger("result_40_20.csv")
-doppelganger("result_60_20.csv")
-doppelganger("result_60_10.csv")
-doppelganger("result_60_30.csv")
+# doppelganger("result_40_20.csv")
+# doppelganger("result_60_20.csv")
+# doppelganger("result_60_10.csv")
+# doppelganger("result_60_30.csv")
 
 print("a) Number of pseudonyms (20 comments per pseudonym)")
 print("\t20 pseudonyms: ", crossval("result_20_20.csv"))
-print("\t40 pseudonyms: ", crossval("result_40_20.csv"))
-print("\t60 pseudonyms: ", crossval("result_60_20.csv"))
-print("====================================================================================")
-print("b) Number of comments per pseudonym (60 pseudonyms)")
-print("\t10 comments per pseudonym: ", crossval("result_60_10.csv"))
-print("\t20 comments per pseudonym: ", crossval("result_60_20.csv"))
-print("\t30 comments per pseudonym: ", crossval("result_60_30.csv"))
+# print("\t40 pseudonyms: ", crossval("result_40_20.csv"))
+# print("\t60 pseudonyms: ", crossval("result_60_20.csv"))
+# print("====================================================================================")
+# print("b) Number of comments per pseudonym (60 pseudonyms)")
+# print("\t10 comments per pseudonym: ", crossval("result_60_10.csv"))
+# print("\t20 comments per pseudonym: ", crossval("result_60_20.csv"))
+# print("\t30 comments per pseudonym: ", crossval("result_60_30.csv"))
 
 # Plotting the result of point a
-x = [1, 2, 3]
-
-plt.plot(x, crossval("result_20_20.csv"), label='1st stage')
-plt.plot(x, crossval("result_40_20.csv"), label='2nd stage')
-plt.plot(x, crossval("result_60_20.csv"), label='3rd stage')
-
-plt.xlabel('Number of Experiments')
-plt.ylabel('Value of Cross Validation')
-
-plt.title("Cross Validation A")
-# Placing a legend on the axes
-plt.legend()
-
-plt.show()
-
-
-# Plotting the result of point b
-plt.plot(x, crossval("result_60_10.csv"), label='1st stage')
-plt.plot(x, crossval("result_60_20.csv"), label='2nd stage')
-plt.plot(x, crossval("result_60_30.csv"), label='3rd stage')
-
-plt.xlabel('Number of Experiments')
-plt.ylabel('Value of Cross Validation')
-
-plt.title("Cross Validation B")
-plt.legend()
-
-plt.show()
+# x = [1, 2, 3]
+#
+# plt.plot(x, crossval("result_20_20.csv"), label='1st stage')
+# plt.plot(x, crossval("result_40_20.csv"), label='2nd stage')
+# plt.plot(x, crossval("result_60_20.csv"), label='3rd stage')
+#
+# plt.xlabel('Number of Experiments')
+# plt.ylabel('Value of Cross Validation')
+#
+# plt.title("Cross Validation A")
+# # Placing a legend on the axes
+# plt.legend()
+#
+# plt.show()
+#
+#
+# # Plotting the result of point b
+# plt.plot(x, crossval("result_60_10.csv"), label='1st stage')
+# plt.plot(x, crossval("result_60_20.csv"), label='2nd stage')
+# plt.plot(x, crossval("result_60_30.csv"), label='3rd stage')
+#
+# plt.xlabel('Number of Experiments')
+# plt.ylabel('Value of Cross Validation')
+#
+# plt.title("Cross Validation B")
+# plt.legend()
+#
+# plt.show()

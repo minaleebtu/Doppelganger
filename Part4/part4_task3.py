@@ -1,7 +1,8 @@
 from scipy.spatial.distance import euclidean
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn import svm
 import matplotlib.pyplot as plt
 
 # Create a list for the classification score
@@ -12,7 +13,7 @@ Euclidean1 = []
 
 # get threshold as an input
 while True:
-    threshold = input("Please enter the threshold (should be number): ")
+    threshold = input("Please enter the threshold (range: 0-1): ")
 
     # check the input parameter is number or not. If parameter is not number, make user input threshold again
     try:
@@ -56,7 +57,7 @@ def euclidDoppel(outfile):
 def predict_score(df):
     data = pd.read_csv(df)
 
-    X = data.drop(['Doppelgangers', 'Author 1', 'Author 2', 'Euclidean Doppelgangers'], axis=1)
+    X = data.drop(['Doppelgangers', 'Author 1', 'Author 2', 'Encode 1', 'Encode 2', 'Euclidean Doppelgangers'], axis=1)
     y = data['Euclidean Doppelgangers']
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
@@ -69,16 +70,16 @@ def predict_score(df):
     return score
 
 
-#Function for calculating Doppelganger score
+# Function for calculating Doppelganger score
 def doppelganger_score(df):
     data = pd.read_csv(df)
 
-    X = data.drop(['Doppelgangers', 'Author 1', 'Author 2'], axis=1)
+    X = data.drop(['Doppelgangers', 'Author 1', 'Author 2', 'Encode 1', 'Encode 2'], axis=1)
     y = data['Doppelgangers']
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-    clf = RandomForestClassifier(n_estimators=40)
+    clf = svm.SVC()
     clf.fit(X_train, y_train)
 
     score = clf.score(X_test, y_test)
@@ -98,23 +99,23 @@ print('Doppelganger Classification Score With 20 Users & 20 Comments :', doppelg
 print('Euclidean Classification Score With 20 Users & 20 Comments :', predict_score('result_20_20_incl_euclid.csv'))
 print('-'*80)
 
-print('\nDoppelganger Classification Score With 40 Users & 20 Comments :', doppelganger_score('result_40_20.csv'))
+print('Doppelganger Classification Score With 40 Users & 20 Comments :', doppelganger_score('result_40_20.csv'))
 print('Euclidean Classification Score With 40 Users & 20 Comments :', predict_score('result_40_20_incl_euclid.csv'))
 print('-'*80)
 
-print('\nDoppelganger Classification Score With 60 Users & 20 Comments :', doppelganger_score('result_60_20.csv'))
+print('Doppelganger Classification Score With 60 Users & 20 Comments :', doppelganger_score('result_60_20.csv'))
 print('Euclidean Classification Score With 60 Users & 20 Comments :', predict_score('result_60_20_incl_euclid.csv'))
 print('-'*80)
 
-print('\nDoppelganger Classification Score With 60 Users & 10 Comments :', doppelganger_score('result_60_10.csv'))
+print('Doppelganger Classification Score With 60 Users & 10 Comments :', doppelganger_score('result_60_10.csv'))
 print('Euclidean Classification Score With 60 Users & 10 Comments :', predict_score('result_60_10_incl_euclid.csv'))
 print('-'*80)
 
-print('\nDoppelganger Classification Score With 60 Users & 20 Comments :', doppelganger_score('result_60_20.csv'))
+print('Doppelganger Classification Score With 60 Users & 20 Comments :', doppelganger_score('result_60_20.csv'))
 print('Euclidean Classification Score With 60 Users & 20 Comments :', predict_score('result_60_20_incl_euclid.csv'))
 print('-'*80)
 
-print('\nDoppelganger Classification Score With 60 Users & 30 Comments :', doppelganger_score('result_60_30.csv'))
+print('Doppelganger Classification Score With 60 Users & 30 Comments :', doppelganger_score('result_60_30.csv'))
 print('Euclidean Classification Score With 60 Users & 30 Comments :', predict_score('result_60_30_incl_euclid.csv'))
 
 
@@ -139,7 +140,7 @@ Euclidean1.append(predict_score('result_60_20_incl_euclid.csv'))
 Euclidean1.append(predict_score('result_60_30_incl_euclid.csv'))
 
 # Creating a plot for the classifier's score
-x = [1,2,3]
+x = [1, 2, 3]
 
 plt.plot(x, Doppelganger, label='Pseudonyms of Doppelganger')
 plt.plot(x, Doppelganger1, label='Comments of Doppelganger')

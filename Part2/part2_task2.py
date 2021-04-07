@@ -13,7 +13,7 @@ from textblob_de import TextBlobDE as TextBlob
 from germansentiment import SentimentModel
 import spacy
 import collections
-from Cleantext import stop_words
+from Part2.Cleantext import stop_words
 import langdetect
 
 textstat.set_lang("de")
@@ -87,6 +87,8 @@ NERList = []
 nounPhraseList = []
 
 langDetectList = []
+
+wordFreqList = []
 
 wordCount = 0
 charCount = 0
@@ -213,7 +215,7 @@ def count_punctuation(text):
 def wordfreq_counter(text):
     dd = stop_words(text)
     counter = Counter(dd)
-    freq_words = Counter(counter).most_common(20)
+    freq_words = Counter(counter).most_common(3)
 
     return freq_words
 
@@ -226,6 +228,7 @@ for row in getComment():
     fog = textstat.gunning_fog(strip_row)
     gunning_fog.append(fog)
     langDetectList.append(langdetect.detect(strip_row))
+    wordFreqList.append(wordfreq_counter(strip_row))
 
     sentences = sent_tokenize(strip_row)
     sentenceCount += len(sentences)
@@ -464,7 +467,7 @@ print("task2 h) Additional features", file=h_out)
 print("- Noun Phrase: ", nounPhraseList, file=h_out)
 print("- Named Entity Recognition: ", list(set(NERList)), file=h_out)
 print("- Language Detection :", langDetectList, file=h_out)
-print("- Top 10 words in the content", wordfreq_counter(contentList), file=h_out)
+print("- Top 3 words in a comment", wordFreqList, file=h_out)
 print("- Ease reading for the content", list(set(ease_reading)), file=h_out)
 print("- Gunning Fog value for the content", list(set(gunning_fog)), file=h_out)
 h_out.close()
